@@ -1,0 +1,39 @@
+<div class="panel">
+  <h3>Reglas</h3>
+  <label>
+    Sobrevive (S):
+    <input [value]="survive()" (input)="onSurviveChange($event)" />
+  </label>
+  <label>
+    Nace (B):
+    <input [value]="born()"    (input)="onBornChange($event)" />
+  </label>
+
+  <h3>Velocidad</h3>
+  <label>
+    Generaciones / s:
+    <input type="number"
+           [value]="speed()"
+           (input)="onSpeedChange($event)"
+           min="1" max="120"/>
+  </label>
+
+  <h3>Patrones</h3>
+  <ul>
+    @for (p of patterns(); track p.name) {
+      <li>
+        <button type="button"
+                (click)="selectPattern(p)">
+          {{ p.name }}
+        </button>
+      </li>
+    }
+  </ul>
+
+  <h3>Controles</h3>
+  <button type="button" (click)="start.emit()">Play</button>
+  <button type="button" (click)="stop.emit()">Stop</button>
+  <button type="button" (click)="game.clear()">Limpiar</button>
+  <h3>Importar RLE</h3>
+  <input type="file" accept=".rle,.lif" (change)="onRLEFileSelected($event)" />
+</div>
