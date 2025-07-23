@@ -1,10 +1,7 @@
 :host {
   display: block;
-  width: calc(100% - 250px);
-  height: 100vh;
   position: absolute;
-  right: 0;
-  top: 0;
+  inset: 0;
 }
 canvas {
   width: 100%;
