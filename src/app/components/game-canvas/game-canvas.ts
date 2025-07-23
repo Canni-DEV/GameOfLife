@@ -32,6 +32,22 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
   private loopId?: number;
   private panState = { active: false, lastX: 0, lastY: 0 };
 
+  /** Convierte una clave "x,y" en coordenadas numéricas */
+  private parseKey(key: string): [number, number] {
+    const comma = key.indexOf(',');
+    return [
+      +key.slice(0, comma),
+      +key.slice(comma + 1)
+    ];
+  }
+
+  /** Color según edad para distinguir patrones */
+  private colorForAge(age: number): string {
+    const h = (age * 15) % 360;
+    const l = 40 + Math.min(age, 10) * 5;
+    return `hsl(${h},70%,${l}%)`;
+  }
+
   constructor(
     private readonly game: GameOfLifeService,
     private readonly injector: Injector
@@ -172,10 +188,12 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
   private draw(cells: Set<string>): void {
     const c = this.canvasRef.nativeElement;
     this.ctx.clearRect(0, 0, c.width, c.height);
-    this.ctx.fillStyle = '#222';
+    const ages = this.game.ages();
 
     cells.forEach(key => {
-      const [x, y] = key.split(',').map(Number);
+      const [x, y] = this.parseKey(key);
+      const age = ages.get(key) ?? 0;
+      this.ctx.fillStyle = this.colorForAge(age);
       this.ctx.fillRect(
         c.width / 2 + (x + this.offset.x) * this.cellSize,
         c.height / 2 + (y + this.offset.y) * this.cellSize,

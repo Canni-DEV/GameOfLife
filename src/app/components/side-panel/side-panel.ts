@@ -46,12 +46,7 @@ const PATTERNS = signal<Pattern[]>([
   standalone: true,
   imports: [CommonModule],
   templateUrl: `./side-panel.html`,
-  styles: [`
-    .panel { width:350px; padding:1rem; background:#f5f5f5; height:800px; top:0px; overflow:auto; position:relative; z-index:999; background:none;}
-    label { display:block; margin-bottom:.5rem; }
-    ul { list-style:none; padding:0; }
-    li button { width:100%; margin:.2rem 0; }
-  `],
+  styleUrls: ['./side-panel.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SidePanelComponent {
@@ -60,6 +55,8 @@ export class SidePanelComponent {
   born = signal('3');
   speed = signal(10);
   patterns = PATTERNS;
+
+  open = signal(false);
 
   @Output() start = new EventEmitter<void>();
   @Output() stop = new EventEmitter<void>();
@@ -95,8 +92,16 @@ export class SidePanelComponent {
     this.speedChange.emit(v);
   }
 
+  toggleMenu() { this.open.set(!this.open()); }
+
   selectPattern(pattern: Pattern) {
     this.patternSelected.emit(pattern.coords);
+  }
+
+  onPatternChange(event: Event) {
+    const name = (event.target as HTMLSelectElement).value;
+    const pattern = this.patterns().find(p => p.name === name);
+    if (pattern) this.selectPattern(pattern);
   }
 
   onRLEFileSelected(event: Event) {

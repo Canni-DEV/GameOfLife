@@ -67,22 +67,28 @@ export class GameOfLifeService {
     const { survive, born } = this.rules();
     const counts = new Map<string, number>();
 
-    // contar vecinos
+    // contar vecinos de forma eficiente
     for (const key of current) {
-      const [x, y] = key.split(',').map(Number);
+      const comma = key.indexOf(',');
+      const x = +key.slice(0, comma);
+      const y = +key.slice(comma + 1);
       for (let dx = -1; dx <= 1; dx++) {
         for (let dy = -1; dy <= 1; dy++) {
           if (dx === 0 && dy === 0) continue;
-          const neighbor = `${x + dx},${y + dy}`;
-          counts.set(neighbor, (counts.get(neighbor) ?? 0) + 1);
+          const nKey = `${x + dx},${y + dy}`;
+          counts.set(nKey, (counts.get(nKey) ?? 0) + 1);
         }
       }
     }
 
-    // construir nueva generación
+    // considerar también celdas con 0 vecinos
+    const cellsToCheck = new Set<string>(counts.keys());
+    current.forEach(k => cellsToCheck.add(k));
+
     const nextCells = new Set<string>();
-    counts.forEach((n, key) => {
-      if (current.has(key) ? survive.has(n) : born.has(n)) {
+    cellsToCheck.forEach(key => {
+      const neighbors = counts.get(key) ?? 0;
+      if (current.has(key) ? survive.has(neighbors) : born.has(neighbors)) {
         nextCells.add(key);
       }
     });
