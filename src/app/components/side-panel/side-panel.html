@@ -1,14 +1,21 @@
 <div class="menu-container" [class.open]="open()">
   <button class="menu-toggle" type="button" (click)="toggleMenu()">&#9776;</button>
   <div class="panel">
+    <br><br>
+     <h3>Reglas predefinidas</h3>
+    <select (change)="onRulePresetChange($event)" [value]="currentPreset">
+      <option *ngFor="let r of rulePresets" [value]="r.name">
+        {{ r.name }}
+      </option>
+    </select>
     <h3>Reglas</h3>
     <label>
       Sobrevive (S):
-      <input [value]="survive()" (input)="onSurviveChange($event)" />
+      <input type="text" [value]="survive()" (input)="onSurviveChange($event)" />
     </label>
     <label>
       Nace (B):
-      <input [value]="born()" (input)="onBornChange($event)" />
+      <input type="text" [value]="born()" (input)="onBornChange($event)" />
     </label>
 
     <h3>Velocidad</h3>
@@ -30,6 +37,6 @@
     <button type="button" (click)="stop.emit()">Stop</button>
     <button type="button" (click)="game.clear()">Limpiar</button>
     <h3>Importar RLE</h3>
-    <input type="file" accept=".rle,.lif" (change)="onRLEFileSelected($event)" />
+    <input type="file" accept=".rle,.lif" (change)="onRLEFileSelected($event)"  />
   </div>
 </div>

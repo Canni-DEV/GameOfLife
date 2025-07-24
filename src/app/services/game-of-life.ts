@@ -1,116 +1,125 @@
-// src/app/services/game-of-life.service.ts
-
 import { Injectable, signal } from '@angular/core';
 import { parseRLE } from '../utils/rle-parser';
 
 export interface Rules {
   survive: Set<number>;
-  born: Set<number>;
+  born:    Set<number>;
 }
 
 @Injectable({ providedIn: 'root' })
 export class GameOfLifeService {
-  /** Celdas vivas (coordenadas "x,y") */
-  readonly cells = signal<Set<string>>(new Set());
+  // -------------------------------------------------------------------
+  // 1) Empaquetado de coordenadas en un solo número de 32 bits:
+  //    [ x:16 bits ][ y:16 bits ]   signed via two's complement
+  private encode(x: number, y: number): number {
+    return ((x & 0xffff) << 16) | (y & 0xffff);
+  }
+  private decode(key: number): [number,number] {
+    // recuperar x desplazando a la derecha
+    const x = (key >> 16) << 16 >> 16; 
+    const y = (key << 16) >> 16;
+    return [x, y];
+  }
 
-  /** Edad de cada célula viva */
-  readonly ages = signal<Map<string, number>>(new Map());
+  // -------------------------------------------------------------------
+  // 2) Array plano de offsets (dx,dy) para los 8 vecinos:
+  private static readonly NEIGHBORS: number[] = [
+    -1, -1,  -1,  0,  -1,  1,
+     0, -1,           0,  1,
+     1, -1,   1,  0,   1,  1
+  ];
 
-  /** Reglas S/B */
+  // -------------------------------------------------------------------
+  // 3) Usamos Set<number> y Map<number,number> en lugar de string:
+  readonly cells = signal<Set<number>>(new Set());
+  readonly ages  = signal<Map<number,number>>(new Map());
   readonly rules = signal<Rules>({
-    survive: new Set([2, 3]),
+    survive: new Set([2,3]),
     born:    new Set([3])
   });
 
-  /** Ajusta las reglas de supervivencia y nacimiento */
   setRules(survive: number[], born: number[]): void {
     this.rules.set({ survive: new Set(survive), born: new Set(born) });
   }
 
-  /** Inserta un patrón centrado en (0,0) */
-  insertPattern(pattern: [number, number][]): void {
+  insertPattern(pattern: [number,number][]): void {
     this.insertPatternAt(pattern, 0, 0);
   }
 
-  /** Inserta un patrón en offset (x,y) */
-  insertPatternAt(pattern: [number, number][], x: number, y: number): void {
+  insertPatternAt(pattern: [number,number][], ox: number, oy: number): void {
     this.cells.update(prev => {
       const next = new Set(prev);
-      for (const [dx, dy] of pattern) {
-        next.add(`${x + dx},${y + dy}`);
+      for (const [dx,dy] of pattern) {
+        next.add(this.encode(ox + dx, oy + dy));
       }
       return next;
     });
   }
 
-  /** Alterna una célula en (x,y) */
   toggleCell(x: number, y: number): void {
+    const key = this.encode(x, y);
     this.cells.update(prev => {
       const next = new Set(prev);
-      const key = `${x},${y}`;
       next.has(key) ? next.delete(key) : next.add(key);
       return next;
     });
-    // reset age to 1 si reaparece
+    // Edad:
     this.ages.update(prev => {
       const next = new Map(prev);
-      const k = `${x},${y}`;
-      if (next.has(k)) next.delete(k);
-      else next.set(k, 1);
+      next.has(key) ? next.delete(key) : next.set(key, 1);
       return next;
     });
   }
 
-  /** Avanza una generación y actualiza edades */
+  // -------------------------------------------------------------------
+  // 4) step() optimizado
   step(): void {
     const current = this.cells();
     const { survive, born } = this.rules();
-    const counts = new Map<string, number>();
 
-    // contar vecinos de forma eficiente
+    // Conteo de vecinos en un Map<number, number>
+    const counts = new Map<number, number>();
+
     for (const key of current) {
-      const comma = key.indexOf(',');
-      const x = +key.slice(0, comma);
-      const y = +key.slice(comma + 1);
-      for (let dx = -1; dx <= 1; dx++) {
-        for (let dy = -1; dy <= 1; dy++) {
-          if (dx === 0 && dy === 0) continue;
-          const nKey = `${x + dx},${y + dy}`;
-          counts.set(nKey, (counts.get(nKey) ?? 0) + 1);
-        }
+      // decodificar solo una vez por célula viva
+      const [x, y] = this.decode(key);
+
+      // sumar +1 vecino a cada tecla vecina
+      const N = GameOfLifeService.NEIGHBORS;
+      for (let i = 0; i < N.length; i += 2) {
+        const nk = this.encode(x + N[i], y + N[i+1]);
+        counts.set(nk, (counts.get(nk) ?? 0) + 1);
       }
     }
 
-    // considerar también celdas con 0 vecinos
-    const cellsToCheck = new Set<string>(counts.keys());
-    current.forEach(k => cellsToCheck.add(k));
+    // Unir claves: todas las con conteo más las vivas (para supervivencia con 0 vecinos)
+    const check = new Set<number>(counts.keys());
+    for (const k of current) check.add(k);
 
-    const nextCells = new Set<string>();
-    cellsToCheck.forEach(key => {
-      const neighbors = counts.get(key) ?? 0;
-      if (current.has(key) ? survive.has(neighbors) : born.has(neighbors)) {
-        nextCells.add(key);
-      }
-    });
+    // Calcular siguiente generación
+    const nextCells = new Set<number>();
+    for (const key of check) {
+      const n = counts.get(key) ?? 0;
+      ( current.has(key) ? survive.has(n) : born.has(n) ) && nextCells.add(key);
+    }
+
     this.cells.set(nextCells);
 
-    // actualizar edades
+    // Actualizar edades
     this.ages.update(prev => {
-      const next = new Map<string, number>();
-      nextCells.forEach(key => {
+      const next = new Map<number, number>();
+      for (const key of nextCells) {
         next.set(key, (prev.get(key) ?? 0) + 1);
-      });
+      }
       return next;
     });
   }
 
-  /** Limpia todo */
   clear(): void {
     this.cells.set(new Set());
-    this.ages.set(new Map());
+    this.ages .set(new Map());
   }
 
-  /** Carga un patrón desde texto RLE */
   loadFromRLE(rleText: string): void {
     const pattern = parseRLE(rleText);
     this.clear();
