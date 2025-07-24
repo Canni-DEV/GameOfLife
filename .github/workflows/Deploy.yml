@@ -1,0 +1,44 @@
+name: Deploy to GitHub Pages
+
+permissions:
+  contents: write        # -> permite push al repositorio
+  pages: write           # -> permite publicar en Pages
+
+on:
+  push:
+    branches:
+      - master      
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Clona tu repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false  
+
+      # 2. Prepara Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22.x'
+
+      # 3. Instala dependencias
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Build de producción de Angular
+      - name: Build Angular app
+        run: npm run build -- --configuration production --output-path=dist --base-href="/GameOfLife/"
+
+      # 5. Publicar en la rama gh-pages
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages           # rama destino para Pages
+          folder: dist               # carpeta que contiene el build
+          clean: true                # limpia la rama antes de publicar
+          token: ${{ secrets.GITHUB_TOKEN }}
