@@ -39,6 +39,6 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages           # rama destino para Pages
-          folder: dist               # carpeta que contiene el build
+          folder: dist/browser                # carpeta que contiene el build
           clean: true                # limpia la rama antes de publicar
           token: ${{ secrets.GITHUB_TOKEN }}
