@@ -1,7 +1,6 @@
-<side-panel
-  (start)="canvas.start()"
-  (stop)="canvas.stop()"
-  (speedChange)="canvas.setSpeed($event)"
+<info-panel (start)="canvas.start()" (stop)="canvas.stop()">
+</info-panel>
+<side-panel (start)="canvas.start()" (stop)="canvas.stop()" (speedChange)="canvas.setSpeed($event)"
   (patternSelected)="canvas.selectPattern($event)">
 </side-panel>
 <game-canvas #canvas></game-canvas>
