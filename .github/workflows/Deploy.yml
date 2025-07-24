@@ -1,54 +1,44 @@
-name: Build & Deploy Angular to GitHub Pages
+name: Deploy to GitHub Pages
 
-# 1) Permisos mínimos para que el paso de Pages funcione
 permissions:
-  contents: read       # para checkout
-  pages: write         # para publicar en Pages
-  id-token: write      # requerido por actions/deploy-pages
+  contents: write        # -> permite push al repositorio
+  pages: write           # -> permite publicar en Pages
 
-# 2) Se dispara al pushear a master (o cámbialo a main si lo prefieres)
 on:
   push:
     branches:
-      - master
+      - master      
 
 jobs:
-  # 3) Etapa de build
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      # 1. Clona tu repo
+      - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          persist-credentials: false  
 
+      # 2. Prepara Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '22.x'
 
+      # 3. Instala dependencias
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Angular app (production)
-        run: npm run build -- \
-          --configuration production \
-          --output-path=dist \
-          --base-href="/GameOfLife/"
+      # 4. Build de producción de Angular
+      - name: Build Angular app
+        run: npm run build -- --configuration production --output-path=dist --base-href="/GameOfLife/"
 
-      - name: Upload artifact for GitHub Pages
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: dist/browser   # aquí es donde está tu index.html y assets
-
-  # 4) Etapa de deploy
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages   # vincula el entorno Pages en tu repo
-      url: ${{ steps.deploy.outputs.page_url }}
-
-    steps:
+      # 5. Publicar en la rama gh-pages
       - name: Deploy to GitHub Pages
-        id: deploy
-        uses: actions/deploy-pages@v1
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages           # rama destino para Pages
+          folder: dist/browser                # carpeta que contiene el build
+          clean: true                # limpia la rama antes de publicar
+          token: ${{ secrets.GITHUB_TOKEN }}
