@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { MusicService } from '../../services/music';
 import { GameOfLifeService } from '../../services/game-of-life';
+import { WebglRendererService } from '../../services/webgl-renderer';
 
 @Component({
   selector: 'game-canvas',
@@ -25,6 +26,13 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
   private canvasRef!: ElementRef<HTMLCanvasElement>;
 
   private ctx!: CanvasRenderingContext2D;
+  private rendererType = signal<'canvas' | 'webgl'>('canvas');
+  constructor(
+    private readonly game: GameOfLifeService,
+    private readonly injector: Injector,
+    private readonly music: MusicService,
+    private readonly webgl: WebglRendererService
+  ) {}
   private cellSize = 10;
   private offset = { x: 0, y: 0 };
   private patternToPlace: [number, number][] | null = null;
@@ -35,11 +43,7 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
   baseHue = signal(0);
   bgColor = signal('#ffffff');
 
-  constructor(
-    private readonly game: GameOfLifeService,
-    private readonly injector: Injector,
-    private readonly music: MusicService
-  ) {}
+
 
   ngAfterViewInit(): void {
     this.initCanvas();
@@ -48,7 +52,6 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
     runInInjectionContext(this.injector, () => {
       effect(() => {
         const cells = this.game.cells();
-        if (!this.ctx) return;
         this.draw(cells);
       });
       effect(() => {
@@ -74,7 +77,11 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
   /** Inicializa canvas y contexto */
   private initCanvas(): void {
     const c = this.canvasRef.nativeElement;
-    this.ctx = c.getContext('2d')!;
+    if (this.rendererType() === 'webgl') {
+      this.webgl.init(c);
+    } else {
+      this.ctx = c.getContext('2d')!;
+    }
     this.resizeCanvas();
     window.addEventListener('resize', () => this.resizeCanvas());
   }
@@ -84,6 +91,9 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
     const c = this.canvasRef.nativeElement;
     c.width  = c.clientWidth;
     c.height = c.clientHeight;
+    if (this.rendererType() === 'webgl') {
+      this.webgl.resize(c.width, c.height);
+    }
   }
 
   /** Si llega ?msj= en la URL, lo convierte en patrón */
@@ -199,6 +209,12 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
     this.music.setScale(name);
   }
 
+  setRenderer(type: 'canvas' | 'webgl'): void {
+    this.rendererType.set(type);
+    this.initCanvas();
+    this.draw(this.game.cells());
+  }
+
   /** Recibe patrón desde el side‑panel */
   selectPattern(coords: [number, number][]): void {
     this.patternToPlace = coords;
@@ -214,6 +230,17 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
 
   /** Dibuja todas las celdas vivas */
   private draw(cells: Set<number>): void {
+    if (this.rendererType() === 'webgl') {
+      this.webgl.draw(
+        cells,
+        this.game.ages(),
+        this.cellSize,
+        this.offset,
+        this.colorEnabled(),
+        this.baseHue()
+      );
+      return;
+    }
     const c    = this.canvasRef.nativeElement;
     const ages = this.game.ages();
 

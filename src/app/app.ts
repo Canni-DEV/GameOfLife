@@ -22,4 +22,8 @@ export class App {
   setScale(name: string) {
     this.canvas.setScale(name);
   }
+
+  setRenderer(type: 'canvas' | 'webgl') {
+    this.canvas.setRenderer(type);
+  }
 }

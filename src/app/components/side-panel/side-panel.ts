@@ -61,6 +61,7 @@ export class SidePanelComponent {
   background = signal('#ffffff');
   musicEnabled = signal(false);
   scale = signal('major');
+  renderer = signal<'canvas' | 'webgl'>('canvas');
 
     // 1) Lista de presets, con “Conway’s Life” seleccionado por defecto
   rulePresets: RulePreset[] = [
@@ -86,6 +87,7 @@ export class SidePanelComponent {
   @Output() bgColorChange = new EventEmitter<string>();
   @Output() musicEnabledChange = new EventEmitter<boolean>();
   @Output() scaleChange = new EventEmitter<string>();
+  @Output() rendererChange = new EventEmitter<'canvas' | 'webgl'>();
 
   constructor(public game: GameOfLifeService) {
     // cada vez que cambien survive/born aplico reglas automáticamente
@@ -141,6 +143,12 @@ export class SidePanelComponent {
     const val = (e.target as HTMLSelectElement).value;
     this.scale.set(val);
     this.scaleChange.emit(val);
+  }
+
+  onRendererSelect(e: Event) {
+    const val = (e.target as HTMLSelectElement).value as 'canvas' | 'webgl';
+    this.renderer.set(val);
+    this.rendererChange.emit(val);
   }
 
   onBaseColorChange(e: Event) {

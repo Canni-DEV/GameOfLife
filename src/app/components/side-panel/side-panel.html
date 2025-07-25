@@ -44,6 +44,13 @@
     Fondo:
     <input type="color" [value]="background()" (input)="onBgColorChange($event)" />
   </label>
+  <label>
+    Motor de render:
+    <select (change)="onRendererSelect($event)" [value]="renderer()">
+      <option value="canvas">Canvas</option>
+      <option value="webgl">WebGL2</option>
+    </select>
+  </label>
 
   <h3>Música</h3>
   <label>
