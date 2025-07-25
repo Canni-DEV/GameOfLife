@@ -32,13 +32,13 @@ jobs:
 
       # 4. Build de producción de Angular
       - name: Build Angular app
-        run: npm run build -- --configuration production --output-path=dist --base-href="/GameOfLife/"
+        run: npm run build -- --configuration production --output-path=dist --base-href="/GameOfLife"
 
       # 5. Publicar en la rama gh-pages
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: gh-pages           # rama destino para Pages
-          folder: dist/browser                # carpeta que contiene el build
-          clean: true                # limpia la rama antes de publicar
+          branch: gh-pages           
+          folder: dist/browser                
+          clean: true                
           token: ${{ secrets.GITHUB_TOKEN }}
