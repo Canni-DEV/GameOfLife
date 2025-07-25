@@ -59,6 +59,8 @@ export class SidePanelComponent {
   colorEnabled = signal(false);
   baseColor = signal('#ff0000');
   background = signal('#ffffff');
+  musicEnabled = signal(false);
+  scale = signal('major');
 
     // 1) Lista de presets, con “Conway’s Life” seleccionado por defecto
   rulePresets: RulePreset[] = [
@@ -82,6 +84,8 @@ export class SidePanelComponent {
   @Output() colorEnabledChange = new EventEmitter<boolean>();
   @Output() baseHueChange = new EventEmitter<number>();
   @Output() bgColorChange = new EventEmitter<string>();
+  @Output() musicEnabledChange = new EventEmitter<boolean>();
+  @Output() scaleChange = new EventEmitter<string>();
 
   constructor(public game: GameOfLifeService) {
     // cada vez que cambien survive/born aplico reglas automáticamente
@@ -125,6 +129,18 @@ export class SidePanelComponent {
     const v = (e.target as HTMLInputElement).checked;
     this.colorEnabled.set(v);
     this.colorEnabledChange.emit(v);
+  }
+
+  onMusicEnabledChange(e: Event) {
+    const v = (e.target as HTMLInputElement).checked;
+    this.musicEnabled.set(v);
+    this.musicEnabledChange.emit(v);
+  }
+
+  onScaleChange(e: Event) {
+    const val = (e.target as HTMLSelectElement).value;
+    this.scale.set(val);
+    this.scaleChange.emit(val);
   }
 
   onBaseColorChange(e: Event) {

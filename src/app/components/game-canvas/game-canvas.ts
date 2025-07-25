@@ -10,6 +10,7 @@ import {
   runInInjectionContext,
   signal
 } from '@angular/core';
+import { MusicService } from '../../services/music';
 import { GameOfLifeService } from '../../services/game-of-life';
 
 @Component({
@@ -36,7 +37,8 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
 
   constructor(
     private readonly game: GameOfLifeService,
-    private readonly injector: Injector
+    private readonly injector: Injector,
+    private readonly music: MusicService
   ) {}
 
   ngAfterViewInit(): void {
@@ -52,6 +54,10 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
       effect(() => {
         const bg = this.bgColor();
         if (this.canvasRef) this.canvasRef.nativeElement.style.background = bg;
+      });
+      effect(() => {
+        const born = this.game.newbornCells();
+        this.music.playCells(born);
       });
     });
 
@@ -82,7 +88,7 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
 
   /** Si llega ?msj= en la URL, lo convierte en patrón */
   private handleURLMessage(): void {
-    const msg = new URLSearchParams(window.location.search).get('text');
+    const msg = new URLSearchParams(window.location.search).get('text') ?? "Canni-DEV";
     if (msg) {
       const pat = this.convertTextToPattern(msg);
       this.game.insertPatternAt(pat, 0, 0);
@@ -183,6 +189,14 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
 
   setBgColor(color: string): void {
     this.bgColor.set(color);
+  }
+
+  setMusicEnabled(v: boolean): void {
+    this.music.setEnabled(v);
+  }
+
+  setScale(name: string): void {
+    this.music.setScale(name);
   }
 
   /** Recibe patrón desde el side‑panel */
