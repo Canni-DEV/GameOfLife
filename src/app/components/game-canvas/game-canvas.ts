@@ -88,7 +88,7 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
 
   /** Si llega ?msj= en la URL, lo convierte en patrón */
   private handleURLMessage(): void {
-    const msg = new URLSearchParams(window.location.search).get('text');
+    const msg = new URLSearchParams(window.location.search).get('text') ?? "Canni-DEV";
     if (msg) {
       const pat = this.convertTextToPattern(msg);
       this.game.insertPatternAt(pat, 0, 0);

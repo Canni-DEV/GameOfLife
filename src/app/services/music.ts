@@ -2,24 +2,26 @@ import { Injectable, signal } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class MusicService {
-  private readonly audio = new AudioContext();
-  private scale: number[] = MusicService.SCALES.major;
-  private readonly rootNote = 60; // MIDI note C4
-  readonly enabled = signal(false);
-
-  static readonly SCALES: Record<string, number[]> = {
+    static readonly SCALES: Record<string, number[]> = {
     major:  [0,2,4,5,7,9,11],
     minor:  [0,2,3,5,7,8,10],
     lydian: [0,2,4,6,7,9,11],
     dorian: [0,2,3,5,7,9,10]
   };
 
+  private readonly audio = new AudioContext();
+  private scale: number[] = MusicService.SCALES['major'];
+  private readonly rootNote = 60; // MIDI note C4
+  readonly enabled = signal(false);
+
+
+
   setEnabled(v: boolean): void {
     this.enabled.set(v);
   }
 
   setScale(name: string): void {
-    this.scale = MusicService.SCALES[name] ?? MusicService.SCALES.major;
+    this.scale = MusicService.SCALES[name] ?? MusicService.SCALES['major'];
   }
 
   playCells(cells: [number, number][]): void {
