@@ -37,6 +37,10 @@ export class GameOfLifeService {
     survive: new Set([2,3]),
     born:    new Set([3])
   });
+  readonly stepCount = signal(0);
+  readonly bornTotal = signal(0);
+  readonly diedTotal = signal(0);
+  readonly newbornCells = signal<[number, number][]>([]);
 
   setRules(survive: number[], born: number[]): void {
     this.rules.set({ survive: new Set(survive), born: new Set(born) });
@@ -75,7 +79,7 @@ export class GameOfLifeService {
   // 4) step() optimizado
   step(): void {
     const current = this.cells();
-    const { survive, born } = this.rules();
+    const { survive, born: bornSet } = this.rules();
 
     // Conteo de vecinos en un Map<number, number>
     const counts = new Map<number, number>();
@@ -100,10 +104,25 @@ export class GameOfLifeService {
     const nextCells = new Set<number>();
     for (const key of check) {
       const n = counts.get(key) ?? 0;
-      ( current.has(key) ? survive.has(n) : born.has(n) ) && nextCells.add(key);
+      ( current.has(key) ? survive.has(n) : bornSet.has(n) ) && nextCells.add(key);
     }
 
+    const newborn: [number, number][] = [];
+    for (const k of nextCells) {
+      if (!current.has(k)) newborn.push(this.decode(k));
+    }
+    this.newbornCells.set(newborn);
+
+    // Estadísticas
+    let born = 0;
+    let died = 0;
+    for (const k of nextCells) if (!current.has(k)) born++;
+    for (const k of current) if (!nextCells.has(k)) died++;
+
     this.cells.set(nextCells);
+    this.stepCount.update(v => v + 1);
+    this.bornTotal.update(v => v + born);
+    this.diedTotal.update(v => v + died);
 
     // Actualizar edades
     this.ages.update(prev => {
@@ -118,6 +137,9 @@ export class GameOfLifeService {
   clear(): void {
     this.cells.set(new Set());
     this.ages .set(new Map());
+    this.stepCount.set(0);
+    this.bornTotal.set(0);
+    this.diedTotal.set(0);
   }
 
   loadFromRLE(rleText: string): void {

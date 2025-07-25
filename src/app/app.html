@@ -1,6 +1,9 @@
-<info-panel (start)="canvas.start()" (stop)="canvas.stop()">
-</info-panel>
+<info-panel (start)="canvas.start()" (stop)="canvas.stop()"></info-panel>
 <side-panel (start)="canvas.start()" (stop)="canvas.stop()" (speedChange)="canvas.setSpeed($event)"
-  (patternSelected)="canvas.selectPattern($event)">
-</side-panel>
+  (patternSelected)="canvas.selectPattern($event)"
+  (colorEnabledChange)="canvas.setColorEnabled($event)"
+  (baseHueChange)="canvas.setBaseHue($event)"
+  (bgColorChange)="canvas.setBgColor($event)"
+  (musicEnabledChange)="canvas.setMusicEnabled($event)"
+  (scaleChange)="canvas.setScale($event)"></side-panel>
 <game-canvas #canvas></game-canvas>
