@@ -56,9 +56,9 @@ export class SidePanelComponent {
 
   open = signal(false);
 
-  colorEnabled = signal(true);
+  colorEnabled = signal(false);
   baseColor = signal('#ff0000');
-  background = signal('#000000');
+  background = signal('#ffffff');
 
     // 1) Lista de presets, con “Conway’s Life” seleccionado por defecto
   rulePresets: RulePreset[] = [

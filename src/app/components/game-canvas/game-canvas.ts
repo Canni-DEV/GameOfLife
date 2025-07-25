@@ -30,9 +30,9 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
   private speed = 10;       // gen/s
   private loopId?: number;
   private panState = { active: false, lastX: 0, lastY: 0 };
-  colorEnabled = signal(true);
+  colorEnabled = signal(false);
   baseHue = signal(0);
-  bgColor = signal('#000000');
+  bgColor = signal('#ffffff');
 
   constructor(
     private readonly game: GameOfLifeService,
@@ -123,7 +123,7 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
     c.addEventListener('wheel', e => {
       e.preventDefault();
       this.cellSize = e.deltaY < 0
-        ? Math.min(20, this.cellSize + 1)
+        ? Math.min(50, this.cellSize + 1)
         : Math.max(1,  this.cellSize - 1);
       this.draw(this.game.cells());
     });
