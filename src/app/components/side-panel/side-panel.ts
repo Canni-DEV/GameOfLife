@@ -56,6 +56,10 @@ export class SidePanelComponent {
 
   open = signal(false);
 
+  colorEnabled = signal(true);
+  baseColor = signal('#ff0000');
+  background = signal('#000000');
+
     // 1) Lista de presets, con “Conway’s Life” seleccionado por defecto
   rulePresets: RulePreset[] = [
     { name: 'Conway’s Life',        survive: [2,3],     born: [3]    },
@@ -75,6 +79,9 @@ export class SidePanelComponent {
   @Output() stop = new EventEmitter<void>();
   @Output() speedChange = new EventEmitter<number>();
   @Output() patternSelected = new EventEmitter<[number, number][]>();
+  @Output() colorEnabledChange = new EventEmitter<boolean>();
+  @Output() baseHueChange = new EventEmitter<number>();
+  @Output() bgColorChange = new EventEmitter<string>();
 
   constructor(public game: GameOfLifeService) {
     // cada vez que cambien survive/born aplico reglas automáticamente
@@ -114,6 +121,24 @@ export class SidePanelComponent {
     this.speedChange.emit(v);
   }
 
+  onColorEnabledChange(e: Event) {
+    const v = (e.target as HTMLInputElement).checked;
+    this.colorEnabled.set(v);
+    this.colorEnabledChange.emit(v);
+  }
+
+  onBaseColorChange(e: Event) {
+    const hex = (e.target as HTMLInputElement).value;
+    this.baseColor.set(hex);
+    this.baseHueChange.emit(this.hexToHue(hex));
+  }
+
+  onBgColorChange(e: Event) {
+    const hex = (e.target as HTMLInputElement).value;
+    this.background.set(hex);
+    this.bgColorChange.emit(hex);
+  }
+
   toggleMenu() { this.open.set(!this.open()); }
 
   selectPattern(pattern: Pattern) {
@@ -138,5 +163,18 @@ export class SidePanelComponent {
       this.game.loadFromRLE(text);
     };
     reader.readAsText(file);
+  }
+
+  private hexToHue(hex: string): number {
+    const r = parseInt(hex.slice(1,3), 16) / 255;
+    const g = parseInt(hex.slice(3,5), 16) / 255;
+    const b = parseInt(hex.slice(5,7), 16) / 255;
+    const max = Math.max(r,g,b), min = Math.min(r,g,b);
+    if (max === min) return 0;
+    let h = 0;
+    if (max === r) h = (60 * ((g-b)/(max-min)) + 360) % 360;
+    else if (max === g) h = 60 * ((b-r)/(max-min)) + 120;
+    else h = 60 * ((r-g)/(max-min)) + 240;
+    return h;
   }
 }

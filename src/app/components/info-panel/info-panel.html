@@ -1,4 +1,11 @@
 <div class="panel">
-    <a href="https://entropymine.com/jason/life/p/jslife-20121230.zip">Jason Summers’s Collection</a>
-    <button class="menu-toggle" type="button" (click)="toggleMenu()">></button>
+  <div class="stats">
+    <span>Gen: {{ step() }}</span>
+    <span>Nacidas: {{ born() }}</span>
+    <span>Muertas: {{ died() }}</span>
+    <span>B/M: {{ ratio() | number:'1.2-2' }}</span>
+    <span>Vivas: {{ alive() }}</span>
+  </div>
+  <a href="https://entropymine.com/jason/life/p/jslife-20121230.zip">Jason Summers’s Collection</a>
+  <button class="menu-toggle" type="button" (click)="toggleMenu()">></button>
 </div>

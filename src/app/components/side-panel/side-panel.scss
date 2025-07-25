@@ -8,7 +8,8 @@
   top: 0;
   left: 1rem;
   z-index: 1000;
-  background: none;
+  background: #333;
+  color: #fff;
   border: none;
   font-size: 1.5rem;
   padding: 0.2rem 0.5rem;
@@ -20,18 +21,21 @@
   overflow: hidden;
   width: 250px;
   padding: 1rem;
-  background: #f5f5f5;
-  height: 95vh;
+  background: #222;
+  color: #eee;
+  height: 100vh;
   position: absolute;
   top: 0;
   left: 0;
   transform: translateX(-105%);
   transition: transform 0.3s;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+  box-shadow: 2px 0 5px rgba(0,0,0,0.5);
 }
 
 .panel h3 {
   margin-top: 1rem;
+  border-bottom: 1px solid #444;
+  padding-bottom: 0.2rem;
 }
 
 .panel label {
@@ -40,9 +44,14 @@
 }
 
 .panel button,
-.panel select {
+.panel select,
+.panel input {
   margin: 0.2rem 0;
   width: 100%;
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 0.2rem;
 }
 
 .panel input[type="text"]  {
