@@ -32,7 +32,7 @@ jobs:
 
       # 4. Build de producción de Angular
       - name: Build Angular app
-        run: npm run build -- --configuration production --output-path=dist --base-href="/GameOfLife"
+        run: npm run build -- --configuration production --output-path=dist --base-href="/GameOfLife/"
 
       # 5. Publicar en la rama gh-pages
       - name: Deploy to GitHub Pages
