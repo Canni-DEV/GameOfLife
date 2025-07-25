@@ -7,7 +7,8 @@ import {
   OnDestroy,
   ViewChild,
   effect,
-  runInInjectionContext
+  runInInjectionContext,
+  signal
 } from '@angular/core';
 import { GameOfLifeService } from '../../services/game-of-life';
 
@@ -29,6 +30,9 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
   private speed = 10;       // gen/s
   private loopId?: number;
   private panState = { active: false, lastX: 0, lastY: 0 };
+  colorEnabled = signal(true);
+  baseHue = signal(0);
+  bgColor = signal('#000000');
 
   constructor(
     private readonly game: GameOfLifeService,
@@ -44,6 +48,10 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
         const cells = this.game.cells();
         if (!this.ctx) return;
         this.draw(cells);
+      });
+      effect(() => {
+        const bg = this.bgColor();
+        if (this.canvasRef) this.canvasRef.nativeElement.style.background = bg;
       });
     });
 
@@ -163,6 +171,20 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
     if (this.loopId != null) this.start();
   }
 
+  setColorEnabled(v: boolean): void {
+    this.colorEnabled.set(v);
+    this.draw(this.game.cells());
+  }
+
+  setBaseHue(h: number): void {
+    this.baseHue.set(h);
+    this.draw(this.game.cells());
+  }
+
+  setBgColor(color: string): void {
+    this.bgColor.set(color);
+  }
+
   /** Recibe patrón desde el side‑panel */
   selectPattern(coords: [number, number][]): void {
     this.patternToPlace = coords;
@@ -197,7 +219,8 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
 
   /** Color según edad (igual que antes) */
   private colorForAge(age: number): string {
-    const h = (age * 15) % 360;
+    if (!this.colorEnabled()) return '#000';
+    const h = ((age * 15) + this.baseHue()) % 360;
     const l = 40 + Math.min(age, 10) * 5;
     return `hsl(${h},70%,${l}%)`;
   }

@@ -24,13 +24,26 @@
       <input type="number" [value]="speed()" (input)="onSpeedChange($event)" min="1" max="120"/>
     </label>
 
-    <h3>Patrones</h3>
-    <select (change)="onPatternChange($event)">
-      <option value="">Seleccione...</option>
-      @for (p of patterns(); track p.name) {
-        <option [value]="p.name">{{ p.name }}</option>
-      }
-    </select>
+  <h3>Patrones</h3>
+  <select (change)="onPatternChange($event)">
+    <option value="">Seleccione...</option>
+    @for (p of patterns(); track p.name) {
+      <option [value]="p.name">{{ p.name }}</option>
+    }
+  </select>
+
+  <h3>Visualización</h3>
+  <label>
+    <input type="checkbox" [checked]="colorEnabled()" (change)="onColorEnabledChange($event)" /> Usar colores
+  </label>
+  <label>
+    Color base:
+    <input type="color" [value]="baseColor()" (input)="onBaseColorChange($event)" />
+  </label>
+  <label>
+    Fondo:
+    <input type="color" [value]="background()" (input)="onBgColorChange($event)" />
+  </label>
 
     <h3>Controles</h3>
     <button type="button" (click)="start.emit()">Play</button>
