@@ -9,12 +9,17 @@ export class WebglRendererService {
   private capacity = 0;
   private fragmentSrc = this.defaultFragmentShader();
 
-  init(canvas: HTMLCanvasElement): void {
+  /**
+   * Initialize the WebGL2 context. Returns `false` if WebGL2 is not supported
+   * so callers can gracefully fall back to the canvas renderer.
+   */
+  init(canvas: HTMLCanvasElement): boolean {
     this.gl = canvas.getContext('webgl2');
-    if (!this.gl) throw new Error('WebGL2 not supported');
+    if (!this.gl) return false;
     this.createProgram();
     this.createGeometry();
     this.resize(canvas.width, canvas.height);
+    return true;
   }
 
   resize(w: number, h: number): void {

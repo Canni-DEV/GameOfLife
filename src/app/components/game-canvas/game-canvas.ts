@@ -78,7 +78,12 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
   private initCanvas(): void {
     const c = this.canvasRef.nativeElement;
     if (this.rendererType() === 'webgl') {
-      this.webgl.init(c);
+      const ok = this.webgl.init(c);
+      if (!ok) {
+        console.warn('WebGL2 not supported, falling back to Canvas');
+        this.rendererType.set('canvas');
+        this.ctx = c.getContext('2d')!;
+      }
     } else {
       this.ctx = c.getContext('2d')!;
     }
