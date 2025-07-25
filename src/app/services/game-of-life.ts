@@ -40,6 +40,7 @@ export class GameOfLifeService {
   readonly stepCount = signal(0);
   readonly bornTotal = signal(0);
   readonly diedTotal = signal(0);
+  readonly newbornCells = signal<[number, number][]>([]);
 
   setRules(survive: number[], born: number[]): void {
     this.rules.set({ survive: new Set(survive), born: new Set(born) });
@@ -105,6 +106,12 @@ export class GameOfLifeService {
       const n = counts.get(key) ?? 0;
       ( current.has(key) ? survive.has(n) : bornSet.has(n) ) && nextCells.add(key);
     }
+
+    const newborn: [number, number][] = [];
+    for (const k of nextCells) {
+      if (!current.has(k)) newborn.push(this.decode(k));
+    }
+    this.newbornCells.set(newborn);
 
     // Estadísticas
     let born = 0;

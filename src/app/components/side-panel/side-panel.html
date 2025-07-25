@@ -45,6 +45,20 @@
     <input type="color" [value]="background()" (input)="onBgColorChange($event)" />
   </label>
 
+  <h3>Música</h3>
+  <label>
+    <input type="checkbox" [checked]="musicEnabled()" (change)="onMusicEnabledChange($event)" /> Activar música
+  </label>
+  <label>
+    Escala:
+    <select (change)="onScaleChange($event)" [value]="scale()">
+      <option value="major">Mayor</option>
+      <option value="minor">Menor</option>
+      <option value="lydian">Lidio</option>
+      <option value="dorian">Dórico</option>
+    </select>
+  </label>
+
     <h3>Controles</h3>
     <button type="button" (click)="start.emit()">Play</button>
     <button type="button" (click)="stop.emit()">Stop</button>
