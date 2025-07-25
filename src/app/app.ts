@@ -14,4 +14,12 @@ export class App {
 
   @ViewChild('canvas', { static: true })
   canvas!: GameCanvasComponent;
+
+  setMusicEnabled(v: boolean) {
+    this.canvas.setMusicEnabled(v);
+  }
+
+  setScale(name: string) {
+    this.canvas.setScale(name);
+  }
 }
