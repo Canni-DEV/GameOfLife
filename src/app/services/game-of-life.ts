@@ -78,7 +78,7 @@ export class GameOfLifeService {
   // 4) step() optimizado
   step(): void {
     const current = this.cells();
-    const { survive, born } = this.rules();
+    const { survive, born: bornSet } = this.rules();
 
     // Conteo de vecinos en un Map<number, number>
     const counts = new Map<number, number>();
@@ -103,7 +103,7 @@ export class GameOfLifeService {
     const nextCells = new Set<number>();
     for (const key of check) {
       const n = counts.get(key) ?? 0;
-      ( current.has(key) ? survive.has(n) : born.has(n) ) && nextCells.add(key);
+      ( current.has(key) ? survive.has(n) : bornSet.has(n) ) && nextCells.add(key);
     }
 
     // Estadísticas
