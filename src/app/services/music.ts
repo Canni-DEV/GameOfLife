@@ -18,6 +18,9 @@ export class MusicService {
 
   setEnabled(v: boolean): void {
     this.enabled.set(v);
+    if (v && this.audio.state === 'suspended') {
+      this.audio.resume();
+    }
   }
 
   setScale(name: string): void {
@@ -26,6 +29,9 @@ export class MusicService {
 
   playCells(cells: [number, number][]): void {
     if (!this.enabled()) return;
+    if (this.audio.state === 'suspended') {
+      this.audio.resume();
+    }
     for (const [, y] of cells) {
       this.playRow(y);
     }
