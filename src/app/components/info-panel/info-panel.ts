@@ -1,9 +1,11 @@
-import { Component, EventEmitter, Output, computed } from '@angular/core';
+import { Component, EventEmitter, Output, Signal, computed } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { GameOfLifeService } from '../../services/game-of-life';
 
 @Component({
   selector: 'info-panel',
-  imports: [],
+  standalone: true,
+  imports: [DecimalPipe],
   templateUrl: './info-panel.html',
   styleUrl: './info-panel.scss'
 })
@@ -11,17 +13,21 @@ export class InfoPanelComponent {
   @Output() start = new EventEmitter<void>();
   @Output() stop = new EventEmitter<void>();
 
-  step = this.game.stepCount;
-  born = this.game.bornTotal;
-  died = this.game.diedTotal;
-  alive = computed(() => this.game.cells().size);
-  ratio = computed(() => {
-    const d = this.died();
-    return d === 0 ? 0 : this.born() / d;
-  });
+  step!: Signal<number>;
+  born!: Signal<number>;
+  died!: Signal<number>;
+  alive!: Signal<number>;
+  ratio!: Signal<number>;
 
   constructor(public game: GameOfLifeService) {
-    this.game = game;
+    this.step = game.stepCount;
+    this.born = game.bornTotal;
+    this.died = game.diedTotal;
+    this.alive = computed(() => game.cells().size);
+    this.ratio = computed(() => {
+      const d = this.died();
+      return d === 0 ? 0 : this.born() / d;
+    });
   }
 
   toggleMenu() { this.start.emit(); }
