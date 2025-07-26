@@ -30,5 +30,5 @@ export class InfoPanelComponent {
     });
   }
 
-  toggleMenu() { this.start.emit(); }
+  startGame() { this.start.emit(); }
 }
