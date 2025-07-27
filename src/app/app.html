@@ -5,5 +5,13 @@
   (baseHueChange)="canvas.setBaseHue($event)"
   (bgColorChange)="canvas.setBgColor($event)"
   (musicEnabledChange)="canvas.setMusicEnabled($event)"
-  (scaleChange)="canvas.setScale($event)"></side-panel>
+  (scaleChange)="setScale($event)"
+  (stepsChange)="setSteps($event)"
+  (rootNoteChange)="setRootNote($event)"
+  (octavesChange)="setOctaves($event)"
+  (drumsEnabledChange)="setDrumsEnabled($event)"
+  (drumIntervalChange)="setDrumInterval($event)"
+  (kickPosChange)="setKickPosition($event)"
+  (snarePosChange)="setSnarePosition($event)"
+  (bpmRatioChange)="setBpmRatio($event)"></side-panel>
 <game-canvas #canvas></game-canvas>

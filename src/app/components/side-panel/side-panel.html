@@ -58,6 +58,41 @@
       <option value="dorian">Dórico</option>
     </select>
   </label>
+  <label>
+    Paso X:
+    <input type="number" [value]="hStep()" (input)="onHStepChange($event)" />
+  </label>
+  <label>
+    Paso Y:
+    <input type="number" [value]="vStep()" (input)="onVStepChange($event)" />
+  </label>
+  <label>
+    Nota raíz:
+    <input type="number" [value]="rootNote()" (input)="onRootNoteChange($event)" />
+  </label>
+  <label>
+    Octavas:
+    <input type="number" min="1" [value]="octaves()" (input)="onOctavesChange($event)" />
+  </label>
+  <label>
+    <input type="checkbox" [checked]="drumsEnabled()" (change)="onDrumsEnabledChange($event)" /> Drum track
+  </label>
+  <label>
+    Pasos del compás:
+    <input type="number" min="1" [value]="drumInterval()" (input)="onDrumIntervalChange($event)" />
+  </label>
+  <label>
+    Posición bombo:
+    <input type="number" [value]="kickPos()" (input)="onKickPosChange($event)" />
+  </label>
+  <label>
+    Posición redoblante:
+    <input type="number" [value]="snarePos()" (input)="onSnarePosChange($event)" />
+  </label>
+  <label>
+    BPM por velocidad:
+    <input type="number" min="1" [value]="bpmRatio()" (input)="onBpmRatioChange($event)" />
+  </label>
 
     <h3>Controles</h3>
     <button type="button" (click)="start.emit()">Play</button>
@@ -66,4 +101,6 @@
     <h3>Importar RLE</h3>
     <input type="file" accept=".rle,.lif" (change)="onRLEFileSelected($event)"  />
   </div>
+  <br/>
+  <br/>
 </div>
