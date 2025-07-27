@@ -15,6 +15,12 @@ export class MusicService {
   private horizontalStep = 1;
   private verticalStep = 2;
   private octaves = 5;
+  private drumEnabled = false;
+  private drumStep = 0;
+  private bpmRatio = 60;
+  private drumInterval = 16;
+  private kickPos = 0;
+  private snarePos = 8;
   readonly enabled = signal(false);
 
   setScale(name: string) {
@@ -28,6 +34,32 @@ export class MusicService {
 
   setOctaves(o: number) {
     this.octaves = Math.max(1, Math.floor(o));
+  }
+
+  setRootNote(n: number) {
+    this.rootNote = Math.floor(n);
+  }
+
+  setDrumsEnabled(v: boolean) {
+    this.drumEnabled = v;
+  }
+
+  setBpmRatio(r: number) {
+    this.bpmRatio = Math.max(1, r);
+  }
+
+  setDrumInterval(i: number) {
+    this.drumInterval = Math.max(1, Math.floor(i));
+    this.kickPos %= this.drumInterval;
+    this.snarePos %= this.drumInterval;
+  }
+
+  setKickPosition(pos: number) {
+    this.kickPos = Math.floor(pos) % this.drumInterval;
+  }
+
+  setSnarePosition(pos: number) {
+    this.snarePos = Math.floor(pos) % this.drumInterval;
   }
 
   setEnabled(v: boolean) {
@@ -86,4 +118,53 @@ export class MusicService {
     osc.start(when);
     osc.stop(when + 0.4);
   }
+
+  tick(speed: number) {
+    if (!this.drumEnabled || !this.enabled()) return;
+    const bpm = speed * this.bpmRatio;
+    const interval = this.drumInterval;
+    const now = this.audio.currentTime;
+
+    if (this.drumStep % interval === this.kickPos) this.playKick(now);
+    if (this.drumStep % interval === this.snarePos) this.playSnare(now);
+
+    this.drumStep = (this.drumStep + 1) % interval;
+  }
+
+  private playKick(when: number) {
+    const osc1 = this.audio.createOscillator();
+    const osc2 = this.audio.createOscillator();
+    const gain = this.audio.createGain();
+    osc1.frequency.setValueAtTime(150, when);
+    osc1.frequency.exponentialRampToValueAtTime(50, when + 0.1);
+    osc2.frequency.setValueAtTime(90, when);
+    osc2.frequency.exponentialRampToValueAtTime(30, when + 0.1);
+    gain.gain.setValueAtTime(0.8, when);
+    gain.gain.exponentialRampToValueAtTime(0.001, when + 0.5);
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(this.audio.destination);
+    osc1.start(when);
+    osc2.start(when);
+    osc1.stop(when + 0.5);
+    osc2.stop(when + 0.5);
+  }
+
+  private playSnare(when: number) {
+    const buffer = this.audio.createBuffer(1, this.audio.sampleRate * 0.2, this.audio.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    const noise = this.audio.createBufferSource();
+    noise.buffer = buffer;
+    const filter = this.audio.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.value = 1000;
+    const gain = this.audio.createGain();
+    gain.gain.setValueAtTime(0.3, when);
+    gain.gain.exponentialRampToValueAtTime(0.001, when + 0.2);
+    noise.connect(filter).connect(gain).connect(this.audio.destination);
+    noise.start(when);
+    noise.stop(when + 0.2);
+  }
 }
+
