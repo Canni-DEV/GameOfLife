@@ -22,4 +22,20 @@ export class App {
   setScale(name: string) {
     this.canvas.setScale(name);
   }
+
+  setSteps(steps: [number, number]) {
+    this.canvas.setSteps(steps[0], steps[1]);
+  }
+
+  setRootNote(n: number) {
+    this.canvas.setRootNote(n);
+  }
+
+  setOctaves(o: number) {
+    this.canvas.setOctaves(o);
+  }
+
+  setDrumsEnabled(v: boolean) {
+    this.canvas.setDrumsEnabled(v);
+  }
 }

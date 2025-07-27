@@ -144,6 +144,11 @@ export class SidePanelComponent {
   background = signal('#ffffff');
   musicEnabled = signal(false);
   scale = signal('major');
+  hStep = signal(1);
+  vStep = signal(2);
+  rootNote = signal(60);
+  octaves = signal(5);
+  drumsEnabled = signal(false);
 
     // 1) Lista de presets, con “Conway’s Life” seleccionado por defecto
   rulePresets: RulePreset[] = [
@@ -169,6 +174,10 @@ export class SidePanelComponent {
   @Output() bgColorChange = new EventEmitter<string>();
   @Output() musicEnabledChange = new EventEmitter<boolean>();
   @Output() scaleChange = new EventEmitter<string>();
+  @Output() stepsChange = new EventEmitter<[number, number]>();
+  @Output() rootNoteChange = new EventEmitter<number>();
+  @Output() octavesChange = new EventEmitter<number>();
+  @Output() drumsEnabledChange = new EventEmitter<boolean>();
 
   constructor(public game: GameOfLifeService) {
     // cada vez que cambien survive/born aplico reglas automáticamente
@@ -218,6 +227,36 @@ export class SidePanelComponent {
     const v = (e.target as HTMLInputElement).checked;
     this.musicEnabled.set(v);
     this.musicEnabledChange.emit(v);
+  }
+
+  onHStepChange(e: Event) {
+    const v = +(e.target as HTMLInputElement).value;
+    this.hStep.set(v);
+    this.stepsChange.emit([v, this.vStep()]);
+  }
+
+  onVStepChange(e: Event) {
+    const v = +(e.target as HTMLInputElement).value;
+    this.vStep.set(v);
+    this.stepsChange.emit([this.hStep(), v]);
+  }
+
+  onRootNoteChange(e: Event) {
+    const v = +(e.target as HTMLInputElement).value;
+    this.rootNote.set(v);
+    this.rootNoteChange.emit(v);
+  }
+
+  onOctavesChange(e: Event) {
+    const v = Math.max(1, Math.floor(+((e.target as HTMLInputElement).value)));
+    this.octaves.set(v);
+    this.octavesChange.emit(v);
+  }
+
+  onDrumsEnabledChange(e: Event) {
+    const v = (e.target as HTMLInputElement).checked;
+    this.drumsEnabled.set(v);
+    this.drumsEnabledChange.emit(v);
   }
 
   onScaleChange(e: Event) {

@@ -58,6 +58,25 @@
       <option value="dorian">Dórico</option>
     </select>
   </label>
+  <label>
+    Paso X:
+    <input type="number" [value]="hStep()" (input)="onHStepChange($event)" />
+  </label>
+  <label>
+    Paso Y:
+    <input type="number" [value]="vStep()" (input)="onVStepChange($event)" />
+  </label>
+  <label>
+    Nota raíz:
+    <input type="number" [value]="rootNote()" (input)="onRootNoteChange($event)" />
+  </label>
+  <label>
+    Octavas:
+    <input type="number" min="1" [value]="octaves()" (input)="onOctavesChange($event)" />
+  </label>
+  <label>
+    <input type="checkbox" [checked]="drumsEnabled()" (change)="onDrumsEnabledChange($event)" /> Drum track
+  </label>
 
     <h3>Controles</h3>
     <button type="button" (click)="start.emit()">Play</button>

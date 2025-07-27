@@ -59,6 +59,10 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
         const born = this.game.newbornCells();
         this.music.playCells(born);
       });
+      effect(() => {
+        this.game.stepCount();
+        this.music.tick(this.speed);
+      });
     });
 
     this.handleURLMessage();
@@ -197,6 +201,22 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
 
   setScale(name: string): void {
     this.music.setScale(name);
+  }
+
+  setSteps(h: number, v: number): void {
+    this.music.setSteps(h, v);
+  }
+
+  setRootNote(n: number): void {
+    this.music.setRootNote(n);
+  }
+
+  setOctaves(o: number): void {
+    this.music.setOctaves(o);
+  }
+
+  setDrumsEnabled(v: boolean): void {
+    this.music.setDrumsEnabled(v);
   }
 
   /** Recibe patrón desde el side‑panel */

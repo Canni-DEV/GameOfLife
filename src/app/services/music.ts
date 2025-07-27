@@ -15,6 +15,8 @@ export class MusicService {
   private horizontalStep = 1;
   private verticalStep = 2;
   private octaves = 5;
+  private drumEnabled = false;
+  private drumStep = 0;
   readonly enabled = signal(false);
 
   setScale(name: string) {
@@ -28,6 +30,14 @@ export class MusicService {
 
   setOctaves(o: number) {
     this.octaves = Math.max(1, Math.floor(o));
+  }
+
+  setRootNote(n: number) {
+    this.rootNote = Math.floor(n);
+  }
+
+  setDrumsEnabled(v: boolean) {
+    this.drumEnabled = v;
   }
 
   setEnabled(v: boolean) {
@@ -86,4 +96,45 @@ export class MusicService {
     osc.start(when);
     osc.stop(when + 0.4);
   }
+
+  tick(speed: number) {
+    if (!this.drumEnabled || !this.enabled()) return;
+    const interval = speed >= 16 ? 16 : 32;
+    const now = this.audio.currentTime;
+
+    if (this.drumStep % interval === 0) this.playKick(now);
+    if (this.drumStep % interval === interval / 2) this.playSnare(now);
+
+    this.drumStep = (this.drumStep + 1) % interval;
+  }
+
+  private playKick(when: number) {
+    const osc = this.audio.createOscillator();
+    const gain = this.audio.createGain();
+    osc.frequency.setValueAtTime(150, when);
+    osc.frequency.exponentialRampToValueAtTime(50, when + 0.1);
+    gain.gain.setValueAtTime(0.7, when);
+    gain.gain.exponentialRampToValueAtTime(0.001, when + 0.5);
+    osc.connect(gain).connect(this.audio.destination);
+    osc.start(when);
+    osc.stop(when + 0.5);
+  }
+
+  private playSnare(when: number) {
+    const buffer = this.audio.createBuffer(1, this.audio.sampleRate * 0.2, this.audio.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    const noise = this.audio.createBufferSource();
+    noise.buffer = buffer;
+    const filter = this.audio.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.value = 1000;
+    const gain = this.audio.createGain();
+    gain.gain.setValueAtTime(0.3, when);
+    gain.gain.exponentialRampToValueAtTime(0.001, when + 0.2);
+    noise.connect(filter).connect(gain).connect(this.audio.destination);
+    noise.start(when);
+    noise.stop(when + 0.2);
+  }
 }
+
