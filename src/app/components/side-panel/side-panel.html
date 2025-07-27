@@ -77,6 +77,22 @@
   <label>
     <input type="checkbox" [checked]="drumsEnabled()" (change)="onDrumsEnabledChange($event)" /> Drum track
   </label>
+  <label>
+    Pasos del compás:
+    <input type="number" min="1" [value]="drumInterval()" (input)="onDrumIntervalChange($event)" />
+  </label>
+  <label>
+    Posición bombo:
+    <input type="number" [value]="kickPos()" (input)="onKickPosChange($event)" />
+  </label>
+  <label>
+    Posición redoblante:
+    <input type="number" [value]="snarePos()" (input)="onSnarePosChange($event)" />
+  </label>
+  <label>
+    BPM por velocidad:
+    <input type="number" min="1" [value]="bpmRatio()" (input)="onBpmRatioChange($event)" />
+  </label>
 
     <h3>Controles</h3>
     <button type="button" (click)="start.emit()">Play</button>

@@ -38,4 +38,20 @@ export class App {
   setDrumsEnabled(v: boolean) {
     this.canvas.setDrumsEnabled(v);
   }
+
+  setDrumInterval(v: number) {
+    this.canvas.setDrumInterval(v);
+  }
+
+  setKickPosition(p: number) {
+    this.canvas.setKickPosition(p);
+  }
+
+  setSnarePosition(p: number) {
+    this.canvas.setSnarePosition(p);
+  }
+
+  setBpmRatio(r: number) {
+    this.canvas.setBpmRatio(r);
+  }
 }

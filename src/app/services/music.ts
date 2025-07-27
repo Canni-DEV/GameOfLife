@@ -17,6 +17,10 @@ export class MusicService {
   private octaves = 5;
   private drumEnabled = false;
   private drumStep = 0;
+  private bpmRatio = 60;
+  private drumInterval = 16;
+  private kickPos = 0;
+  private snarePos = 8;
   readonly enabled = signal(false);
 
   setScale(name: string) {
@@ -38,6 +42,24 @@ export class MusicService {
 
   setDrumsEnabled(v: boolean) {
     this.drumEnabled = v;
+  }
+
+  setBpmRatio(r: number) {
+    this.bpmRatio = Math.max(1, r);
+  }
+
+  setDrumInterval(i: number) {
+    this.drumInterval = Math.max(1, Math.floor(i));
+    this.kickPos %= this.drumInterval;
+    this.snarePos %= this.drumInterval;
+  }
+
+  setKickPosition(pos: number) {
+    this.kickPos = Math.floor(pos) % this.drumInterval;
+  }
+
+  setSnarePosition(pos: number) {
+    this.snarePos = Math.floor(pos) % this.drumInterval;
   }
 
   setEnabled(v: boolean) {
@@ -99,25 +121,33 @@ export class MusicService {
 
   tick(speed: number) {
     if (!this.drumEnabled || !this.enabled()) return;
-    const interval = speed >= 16 ? 16 : 32;
+    const bpm = speed * this.bpmRatio;
+    const interval = this.drumInterval;
     const now = this.audio.currentTime;
 
-    if (this.drumStep % interval === 0) this.playKick(now);
-    if (this.drumStep % interval === interval / 2) this.playSnare(now);
+    if (this.drumStep % interval === this.kickPos) this.playKick(now);
+    if (this.drumStep % interval === this.snarePos) this.playSnare(now);
 
     this.drumStep = (this.drumStep + 1) % interval;
   }
 
   private playKick(when: number) {
-    const osc = this.audio.createOscillator();
+    const osc1 = this.audio.createOscillator();
+    const osc2 = this.audio.createOscillator();
     const gain = this.audio.createGain();
-    osc.frequency.setValueAtTime(150, when);
-    osc.frequency.exponentialRampToValueAtTime(50, when + 0.1);
-    gain.gain.setValueAtTime(0.7, when);
+    osc1.frequency.setValueAtTime(150, when);
+    osc1.frequency.exponentialRampToValueAtTime(50, when + 0.1);
+    osc2.frequency.setValueAtTime(90, when);
+    osc2.frequency.exponentialRampToValueAtTime(30, when + 0.1);
+    gain.gain.setValueAtTime(0.8, when);
     gain.gain.exponentialRampToValueAtTime(0.001, when + 0.5);
-    osc.connect(gain).connect(this.audio.destination);
-    osc.start(when);
-    osc.stop(when + 0.5);
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(this.audio.destination);
+    osc1.start(when);
+    osc2.start(when);
+    osc1.stop(when + 0.5);
+    osc2.stop(when + 0.5);
   }
 
   private playSnare(when: number) {

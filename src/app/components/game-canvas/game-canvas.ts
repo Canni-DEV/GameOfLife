@@ -219,6 +219,22 @@ export class GameCanvasComponent implements AfterViewInit, OnDestroy {
     this.music.setDrumsEnabled(v);
   }
 
+  setDrumInterval(n: number): void {
+    this.music.setDrumInterval(n);
+  }
+
+  setKickPosition(p: number): void {
+    this.music.setKickPosition(p);
+  }
+
+  setSnarePosition(p: number): void {
+    this.music.setSnarePosition(p);
+  }
+
+  setBpmRatio(r: number): void {
+    this.music.setBpmRatio(r);
+  }
+
   /** Recibe patrón desde el side‑panel */
   selectPattern(coords: [number, number][]): void {
     this.patternToPlace = coords;
